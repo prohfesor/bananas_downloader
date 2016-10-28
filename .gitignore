@@ -1,0 +1,5 @@
+# IDE files
+.idea/
+
+# Bot config
+telegram_bot/config.php
