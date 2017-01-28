@@ -7,7 +7,7 @@
  */
 require_once "config.php";
 
-define('SERVICE_URL', "https://api.telegram.org/$bot_token");
+define('SERVICE_URL', "https://api.telegram.org/bot$bot_token");
 
 function get_updates($offset =null) {
 	$url = SERVICE_URL . "/getUpdates";
