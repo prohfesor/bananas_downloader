@@ -6,3 +6,9 @@
  */
 
 require_once ("config.php");
+require_once ("api_functions.php");
+
+//get last updates
+$updates = get_updates();
+
+var_dump($updates);
