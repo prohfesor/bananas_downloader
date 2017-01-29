@@ -19,7 +19,7 @@ for ($i=1;$i<=RETRY;$i++) {
     var_dump($updates);
 
     //process updates
-    process($updates);
+    process($updates, $offset);
 }
 
 echo "Timed out! \n\n";

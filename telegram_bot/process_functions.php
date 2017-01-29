@@ -2,16 +2,19 @@
 
 require_once "config.php";
 require_once "api_functions.php";
+require_once "downloads_functions.php";
 
-function process($updates) {
-	if (!$updates || !$updates->result || !is_array($updates->result)) {
+function process($updates, $last_processed) {
+	if (!$updates || empty($updates->result) || !is_array($updates->result)) {
 		return false;
 	}
-	$last_processed = load_last_processed();
 	foreach ($updates->result as $update) {
 		if($update->update_id <= $last_processed) {
 			continue;
 		}
+		if(empty($update->message->text)){
+            continue;
+        }
 		if(contains($update, "/start")) {
 			process_start($update);
 			process_help($update);
@@ -19,12 +22,21 @@ function process($updates) {
 		if(contains($update, "/help")) {
 			process_help($update);
 		}
+		if(contains_url($update)){
+            process_url($update);
+        }
+        //send_not_understand($update);
 	}
 	return true;
 }
 
 function contains($update, $needle) {
 	return (false !== stripos($needle, $update->message->text));
+}
+
+function contains_url($update) {
+    $regexp = '/\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/im';
+    return preg_match($regexp, $update->message->text);
 }
 
 function process_start($update) {
@@ -40,6 +52,22 @@ function process_help($update) {
 	"List of commands: \n".
 	"/help - this text\n";
 	send_reply($update, $reply);
+}
+
+function process_url($update) {
+    if (preg_match('/\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/im', $update->message->text, $regs)) {
+        $url = $regs[0];
+    } else {
+        return false;
+    }
+    $result = download_add($url);
+    $reply = $result ? "Download successfully added" : "Error adding this url to download queue";
+    send_reply($update, $reply);
+}
+
+function send_not_understand($update) {
+    send_reply($update, "I don't understand");
+    save_last_processed($update);
 }
 
 function send_reply($update, $text) {
