@@ -5,14 +5,21 @@
  * Time: 12:32
  */
 
-require_once "config.php";
 require_once "api_functions.php";
 require_once "process_functions.php";
 
-//get last updates
-$updates = get_updates();
+echo "Bot listener started \n\n";
 
-var_dump($updates);
+for ($i=1;$i<=RETRY;$i++) {
+    echo " Query $i... \n";
 
-//process updates
-process($updates);
+    //get last updates
+    $offset = load_last_processed();
+    $updates = get_updates($offset+1);
+    var_dump($updates);
+
+    //process updates
+    process($updates);
+}
+
+echo "Timed out! \n\n";

@@ -7,11 +7,11 @@
  */
 require_once "config.php";
 
-define('SERVICE_URL', "https://api.telegram.org/bot$bot_token");
+define('SERVICE_URL', "https://api.telegram.org/bot".BOT_TOKEN);
 
 function get_updates($offset =null) {
-	$url = SERVICE_URL . "/getUpdates";
-	$url .= ($offset) ? "?offset=$offset" : "";
+	$url = SERVICE_URL . "/getUpdates?timeout=".TIMEOUT_POLING;
+	$url .= ($offset) ? "&offset=$offset" : "";
 	return query($url);
 }
 
