@@ -22,6 +22,9 @@ function process($updates, $last_processed) {
 		if(contains($update, "/help")) {
 			process_help($update);
 		}
+		if(!is_eligible($update)){
+            continue;
+        }
 		if(contains_url($update)){
             process_url($update);
         }
@@ -31,12 +34,22 @@ function process($updates, $last_processed) {
 }
 
 function contains($update, $needle) {
-	return (false !== stripos($needle, $update->message->text));
+	return (false !== stripos($update->message->text, $needle));
 }
 
 function contains_url($update) {
     $regexp = '/\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/im';
     return preg_match($regexp, $update->message->text);
+}
+
+function is_eligible($update) {
+    $id = $update->message->from->id;
+    if(in_array($id, WHITELISTED_USERS)){
+        return true;
+    }
+    $reply = "Who are you? I don't recognize. Go away.";
+    send_reply($update, $reply);
+    return false;
 }
 
 function process_start($update) {
