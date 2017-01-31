@@ -21,14 +21,20 @@ function process($updates, $last_processed) {
 		}
 		if(contains($update, "/help")) {
 			process_help($update);
+			continue;
 		}
 		if(!is_eligible($update)){
             continue;
         }
-		if(contains_url($update)){
+		if(contains_url($update)) {
             process_url($update);
+			continue;
         }
-        //send_not_understand($update);
+        if(contains_magnet($update)) {
+            process_magnet($update);
+			continue;
+        }
+        send_not_understand($update);
 	}
 	return true;
 }
@@ -39,6 +45,11 @@ function contains($update, $needle) {
 
 function contains_url($update) {
     $regexp = '/\b(https?|ftp):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/im';
+    return preg_match($regexp, $update->message->text);
+}
+
+function contains_magnet($update) {
+    $regexp = '/magnet:\?[^\s]*/simx';
     return preg_match($regexp, $update->message->text);
 }
 
@@ -75,6 +86,17 @@ function process_url($update) {
     }
     $result = download_add($url);
     $reply = $result ? "Download successfully added" : "Error adding this url to download queue";
+    send_reply($update, $reply);
+}
+
+function process_magnet($update) {
+    if (preg_match('/magnet:\?[^\s]*/simx', $update->message->text, $regs)) {
+        $url = $regs[0];
+    } else {
+        return false;
+    }
+    $result = download_add($url);
+    $reply = $result ? "Download successfully added" : "Error adding this url to queue";
     send_reply($update, $reply);
 }
 
