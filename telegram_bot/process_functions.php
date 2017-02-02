@@ -18,9 +18,14 @@ function process($updates, $last_processed) {
 		if(contains($update, "/start")) {
 			process_start($update);
 			process_help($update);
+			continue;
 		}
 		if(contains($update, "/help")) {
 			process_help($update);
+			continue;
+		}
+		if(contains($update, "/id")) {
+			process_id($update);
 			continue;
 		}
 		if(!is_eligible($update)){
@@ -72,9 +77,17 @@ function process_start($update) {
 
 function process_help($update) {
 	$reply = "This bot works to help you manage your downloads. \n".
-	"Just send me the link that you want to download. Url can be torrent, either regular http link. \n\n".
+	"Just send me the link that you want to download. Url can be torrent magnet, either regular http link. \n\n".
 	"List of commands: \n".
-	"/help - this text\n";
+	"/help - this text\n".
+	"/id - your unique id\n";
+	send_reply($update, $reply);
+}
+
+function process_id($update) {
+	$id = $update->message->from->id;
+	$reply = "Your id is: $id\n".
+	"Use it for whitelisted users setting.\n";
 	send_reply($update, $reply);
 }
 
@@ -101,7 +114,7 @@ function process_magnet($update) {
 }
 
 function send_not_understand($update) {
-    send_reply($update, "I don't understand");
+    send_message_reply($update->message->chat->id, $update->message->message_id, "I don't understand");
     save_last_processed($update);
 }
 

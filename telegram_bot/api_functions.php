@@ -15,9 +15,13 @@ function get_updates($offset =null) {
 	return query($url);
 }
 
-
 function send_message($chat_id, $text) {
 	$url = SERVICE_URL . "/sendMessage?chat_id=$chat_id&text=" . urlencode($text);
+	return query($url);
+}
+
+function send_message_reply($chat_id, $message_to_reply_id, $text) {
+	$url = SERVICE_URL . "/sendMessage?chat_id=$chat_id&reply_to_message_id=$message_to_reply_id&text=" . urlencode($text);
 	return query($url);
 }
 
